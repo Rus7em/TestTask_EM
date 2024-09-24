@@ -13,4 +13,11 @@ engine = create_engine(DATABASE_URL)
 
 session = sessionmaker(autoflush=False, bind=engine)
 
+def get_db():
+    db = session()
+    try:
+        yield db
+    finally:
+        db.close()
+
 Base = declarative_base()
