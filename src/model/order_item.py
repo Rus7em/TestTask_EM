@@ -12,5 +12,3 @@ class OrderItem(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("product.id"))
     num: Mapped[int]
 
-    class Config:
-        orm_mode = True

@@ -13,6 +13,3 @@ class Product(Base):
     description: Mapped[Optional[str]]
     price: Mapped[Optional[int]]
     num: Mapped[int]
-
-    class Config:
-        orm_mode = True
