@@ -1,4 +1,4 @@
-DB_USERNAME = "username"
-DB_PASSWORD = "password"
-DB_HOST = "host"
-DB_NAME = "name"
+DB_USERNAME = "project"
+DB_PASSWORD = "project"
+DB_HOST = "0.0.0.0"
+DB_NAME = "project"
