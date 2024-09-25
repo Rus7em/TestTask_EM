@@ -1,23 +1,21 @@
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import config
 
-DATABASE_URL = "postgresql://{}:{}@{}/{}".format(config.DB_USERNAME,
+DATABASE_URL = "postgresql+asyncpg://{}:{}@{}/{}".format(config.DB_USERNAME,
                                                  config.DB_PASSWORD,
                                                  config.DB_HOST,
                                                  config.DB_NAME)
 
-engine = create_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL)
 
-session = sessionmaker(autoflush=False, bind=engine)
+session = async_sessionmaker(engine)
 
-def get_db():
-    db = session()
-    try:
-        yield db
-    finally:
-        db.close()
+
+async def get_db():
+    async with session() as s:
+        yield s
 
 Base = declarative_base()
