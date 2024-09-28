@@ -11,3 +11,6 @@ class ReadOrderItem(BaseModel):
     order_id: int
     product_id: int
     num: int
+
+    class Config:
+        from_attributes = True

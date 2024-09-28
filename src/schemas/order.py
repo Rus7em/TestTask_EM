@@ -1,20 +1,27 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
+from enum import StrEnum
 
-from order_item import CreateOrderItem, ReadOrderItem
+from schemas.order_item import CreateOrderItem, ReadOrderItem
+
+
+class Status(StrEnum):
+    PROCESSING = "Processing"
+    SHIPPED = "Shipped"
+    DELIVERED = "Delivered"
 
 
 class CreateOrder(BaseModel):
-    state: str
+    state: Status
     items: List[CreateOrderItem]
 
 
 class ReadOrder(BaseModel):
     id: int
     create_at: datetime
-    status_id: int
-    items: List[ReadOrderItem]
+    status: Status
+    items: Optional[List[ReadOrderItem]] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
