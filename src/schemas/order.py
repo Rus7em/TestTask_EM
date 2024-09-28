@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import StrEnum
@@ -18,10 +18,9 @@ class CreateOrder(BaseModel):
 
 
 class ReadOrder(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     create_at: datetime
     status: Status
     items: Optional[List[ReadOrderItem]] = None
 
-    class Config:
-        from_attributes = True

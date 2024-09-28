@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CreateOrderItem(BaseModel):
@@ -7,10 +7,9 @@ class CreateOrderItem(BaseModel):
 
 
 class ReadOrderItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     order_id: int
     product_id: int
     num: int
-
-    class Config:
-        from_attributes = True
