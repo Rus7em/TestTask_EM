@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from .setting_test import async_db, async_client
 from models.product import Product
-from typing import List
+from schemas.product import ReadProduct
 
 product_1= {
       "name": "Stuff 1",
@@ -21,35 +21,37 @@ product_2 = {
       "num": 23344 
 }
 
-def check_response_product(origin: dict, response: dict):
-    assert response != None
-    assert response["name"] == origin["name"], f"res: {response}, origin: {origin}"
-    assert response["description"] == origin["description"]
-    assert response["price"] == origin["price"]
-    assert response["num"] == origin["num"]
+def check_response_product(origin: dict, response_product: ReadProduct):
+    assert response_product != None
+    assert response_product.name == origin["name"], f"res: {response_product}, origin: {origin}"
+    assert response_product.description == origin["description"]
+    assert response_product.price == origin["price"]
+    assert response_product.num == origin["num"]
 
 
 
-def check_db_product(origin: dict, tested: Product):
-    assert tested != None
-    assert tested.name == origin["name"]
-    assert tested.description == origin["description"]
-    assert tested.price == origin["price"]
-    assert tested.num == origin["num"]
+def check_db_product(origin: dict, db_product: Product):
+    assert db_product!= None
+    assert db_product.name == origin["name"]
+    assert db_product.description == origin["description"]
+    assert db_product.price == origin["price"]
+    assert db_product.num == origin["num"]
 
-def check_db_product_list(origin: list[dict], tested: Sequence[Product]):
-    assert len(tested) == len(origin)
+
+
+def check_product_list(origin: list[dict], products: list[ReadProduct]):
+    assert len(products) != None
     for o in origin:
-        temp_t = None
-        for t in tested:
-            if t.name == o["name"]:
-                temp_t = t
+        temp_p = None
+        for p in products:
+            if p.name == o["name"]:
+                temp_p = p
                 continue
-        assert temp_t != None, f"DB doesn't have product - {o["name"]}"
-        check_db_product(origin=o, tested=temp_t)
+        assert temp_p != None, f"DB doesn't have product - {o["name"]}"
+        check_response_product(origin=o, response_product=temp_p)
 
 @pytest.mark.asyncio
-async def test_create_product(async_client:AsyncClient, async_db: AsyncSession):
+async def test_add_product(async_client:AsyncClient, async_db: AsyncSession):
     # добавляем продукт 1 
     response = await async_client.post("/products/", json=product_1)
     assert response.status_code == 200
@@ -60,7 +62,7 @@ async def test_create_product(async_client:AsyncClient, async_db: AsyncSession):
     # читаем запись с БД
     result = await async_db.execute(select(Product).where(Product.id==id))
     db_product = result.scalar_one_or_none()
-    check_db_product(origin=product_1, tested=db_product)
+    check_db_product(origin=product_1, db_product=db_product)
 
 
 @pytest.mark.asyncio
@@ -76,10 +78,13 @@ async def test_get_products(async_client:AsyncClient, async_db: AsyncSession):
     response = await async_client.post("/products/", json=product_2)
     assert response.status_code == 200
     
-    # читаем с бд 
-    result = await async_db.execute(select(Product))
-    db_product_list = result.scalars().all()
-    check_db_product_list(origin=[product_1, product_2], tested=db_product_list)
+    # читаем продукты с API
+    response = await async_client.get("/products/")
+    assert response.status_code == 200
+
+    product_list = [ReadProduct(**r) for r in response.json()]
+    check_product_list(origin=[product_1, product_2], products= product_list)
+
 
 @pytest.mark.asyncio
 async def test_get_product(async_client:AsyncClient, async_db: AsyncSession):
@@ -91,14 +96,14 @@ async def test_get_product(async_client:AsyncClient, async_db: AsyncSession):
     assert response.status_code == 200
     product_2_id = response.json()
     
-    # читаем продукт и сравниваем добавленым
+    # читаем продукт и сравниваем c добавленым
     response = await async_client.get(f"/products/{product_2_id}")
     assert response.status_code == 200
-    check_response_product(origin=product_2, response=response.json())
+    check_response_product(origin=product_2, response_product=ReadProduct(**response.json()))
     
     response = await async_client.get(f"/products/{product_1_id}")
     assert response.status_code == 200
-    check_response_product(origin=product_1, response=response.json())
+    check_response_product(origin=product_1, response_product=ReadProduct(**response.json()))
 
 
 @pytest.mark.asyncio
@@ -114,7 +119,7 @@ async def test_remove_product(async_client:AsyncClient, async_db: AsyncSession):
     # читаем продукт 1
     response = await async_client.get(f"/products/{product_1_id}")
     assert response.status_code == 200
-    check_response_product(origin=product_1, response=response.json())
+    check_response_product(origin=product_1, response_product=ReadProduct(**response.json()))
 
     # удалем продекк 1 
     response = await async_client.delete(f"/products/{product_1_id}")
@@ -127,6 +132,5 @@ async def test_remove_product(async_client:AsyncClient, async_db: AsyncSession):
     # проверяем что продукт 2 остался
     response = await async_client.get(f"/products/{product_2_id}")
     assert response.status_code == 200
-    check_response_product(origin=product_2, response=response.json())
 
 

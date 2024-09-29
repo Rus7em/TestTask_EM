@@ -11,4 +11,3 @@ class OrderItem(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("order.id"))
     product_id: Mapped[int] = mapped_column(ForeignKey("product.id"))
     num: Mapped[int]
-
