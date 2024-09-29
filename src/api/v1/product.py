@@ -14,7 +14,7 @@ async def product_parameters(name: str, description: str, price: str, num: int):
 product_dep = Annotated[dict, Depends(product_parameters)]
 
 
-@router.post("/", response_model=ReadProduct)
+@router.post("/", response_model=int)
 async def add(product: CreateProduct = Body(...), db: AsyncSession = Depends(get_db)):
     return await service.add_product(product=product, db=db)
 

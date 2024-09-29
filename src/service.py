@@ -19,7 +19,7 @@ async def add_product(product: CreateProduct, db: AsyncSession):
     db.add(db_product)
     await db.commit()
     await db.refresh(db_product)
-    return db_product
+    return db_product.id
 
 async def get_product_list(db: AsyncSession):
     # добавить пагинацию
