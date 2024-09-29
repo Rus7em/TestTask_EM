@@ -1,5 +1,6 @@
-DB_USERNAME = "project"
-DB_PASSWORD = "project"
-DB_HOST = "0.0.0.0"
-DB_NAME = "project"
-TEST_DB_NAME = "test_project"
+import os 
+
+DB_USERNAME = os.getenv("DB_USERNAME","project")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "project")
+DB_NAME = os.getenv("DB_NAME", "project")
+DB_HOST = os.getenv("DB_HOST", "0.0.0.0:5432")
