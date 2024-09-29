@@ -88,7 +88,7 @@ async def add_order(order: CreateOrder, db: AsyncSession):
 
 
     #Создание заказа
-    db_order = Order(status=order.state)
+    db_order = Order(status=order.status)
     db.add(db_order)
     await db.commit()
     await db.refresh(db_order)

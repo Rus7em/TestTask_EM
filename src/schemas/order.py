@@ -13,7 +13,7 @@ class Status(StrEnum):
 
 
 class CreateOrder(BaseModel):
-    state: Status
+    status: Status
     items: List[CreateOrderItem]
 
 
